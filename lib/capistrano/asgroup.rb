@@ -9,9 +9,18 @@ module Capistrano
         set :asgroup_use_private_ips, false
       end
 
+      if nil == fetch(:aws_profile_name)
+        set :aws_profile_name, "default"
+      end
+
+      credentials = Aws::SharedCredentials.new(profile_name: fetch(:aws_profile_name))
+      @as_api = Aws::AutoScaling::Client.new(
+        region: fetch(:aws_region),
+        credentials: credentials
+      )
       @ec2_api ||= Aws::EC2::Client.new(
-        region: fetch(:aws_region)
-        # credentials from ENV
+        region: fetch(:aws_region),
+        credentials: credentials
       )
     end
 
@@ -26,10 +35,6 @@ module Capistrano
         set :asgroup_use_private_ips, false
       end
 
-      @ec2_api = Aws::EC2::Client.new(
-        region: fetch(:aws_region)
-        # credentials from ENV
-      )
       @ec2DescInst = @ec2_api.describe_instances(filters:[
         name: "tag:#{tagName}", values: [tagValue]
       ])
@@ -62,15 +67,8 @@ module Capistrano
         set :asgroup_use_private_ips, false
       end
 
-      @ec2_api = Aws::EC2::Client.new(
-        region: fetch(:aws_region)
-        # credentials from ENV
-      )
-      @as_api = Aws::AutoScaling::Client.new(region: fetch(:aws_region))
-
       # Get descriptions of all the Auto Scaling groups
       @autoScaleDesc = @as_api.describe_auto_scaling_groups
-
       @asGroupInstanceIds = Array.new()
       # Find the right Auto Scaling group
       @autoScaleDesc[:auto_scaling_groups].each do |asGroup|
@@ -90,6 +88,8 @@ module Capistrano
         #remove instances that are either not in this asGroup or not in the "running" state
         reservation[:instances].delete_if{ |a| not @asGroupInstanceIds.include?(a[:instance_id]) or a[:state][:name] != "running" }.each do |instance|
           puts "Found ASG #{which} Instance ID: #{instance[:instance_id]} in VPC: #{instance[:vpc_id]}"
+          require 'pp'
+          pp instance
           if true == fetch(:asgroup_use_private_ips)
             server(instance[:private_ip_address], *args)
           else

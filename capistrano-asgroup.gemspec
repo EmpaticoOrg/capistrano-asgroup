@@ -1,12 +1,14 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path('../lib', __FILE__)
+require 'capistrano/version'
 
 Gem::Specification.new do |s|
   s.name        = 'capistrano-asgroup'
-  s.version     = '0.5'
-  s.authors     = ['Piotr Jasiulewicz']
-  s.date        = '2016-01-17'
-  s.homepage    = 'https://github.com/teu/capistrano-asgroup'
+  s.version     = Capistrano::Asgroup::VERSION
+  s.authors     = ['Piotr Jasiulewicz', 'Thomas Verbiscer', 'James Turnbull']
+  s.homepage    = 'https://github.com/EmpaticoOrg/capistrano-asgroup'
+  s.license     = 'MIT'
+  s.email       = 'jturnbull@emaptico.org'
   s.summary     = 'A Capistrano3 plugin aimed at easing the pain of deploying to AWS Auto Scale instances.'
   s.description = ''
 
