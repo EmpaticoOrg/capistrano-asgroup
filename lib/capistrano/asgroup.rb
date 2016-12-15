@@ -88,8 +88,6 @@ module Capistrano
         #remove instances that are either not in this asGroup or not in the "running" state
         reservation[:instances].delete_if{ |a| not @asGroupInstanceIds.include?(a[:instance_id]) or a[:state][:name] != "running" }.each do |instance|
           puts "Found ASG #{which} Instance ID: #{instance[:instance_id]} in VPC: #{instance[:vpc_id]}"
-          require 'pp'
-          pp instance
           if true == fetch(:asgroup_use_private_ips)
             server(instance[:private_ip_address], *args)
           else
