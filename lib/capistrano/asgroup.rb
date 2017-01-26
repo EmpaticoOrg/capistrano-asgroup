@@ -1,7 +1,6 @@
 require 'capistrano/asgroup/version'
 require 'rubygems'
 require 'aws-sdk'
-require 'capistrano'
 
 module Capistrano
   module Asgroup
@@ -25,13 +24,14 @@ module Capistrano
       )
     end
 
-    # Adds Capistrano servers based on instance tag k/v
-    def self.addInstancesByTag(tagName, tagValue, *args)
+  module DSL
+    def add_by_tag(tagName, tagValue, properties = {})
+      Asgroup.setup
       @instance ||= new
-      @instance.addInstancesByTag(tagName, tagValue, *args)
+      @instance.addInstancesByTag(tagName, tagValue, properties)
     end
 
-    def addInstancesByTag(tagName, tagValue, *args)
+    def addInstancesByTag(tagName, tagValue, properties)
       if nil == fetch(:asgroup_use_private_ips)
         set :asgroup_use_private_ips, false
       end
@@ -45,9 +45,9 @@ module Capistrano
         reservation[:instances].delete_if{ |a| a[:state][:name] != "running" }.each do |instance|
           puts "Found tagged #{tagName}:#{tagValue} instance, ID: #{instance[:instance_id]} in VPC: #{instance[:vpc_id]}"
           if true == fetch(:asgroup_use_private_ips)
-            server(instance[:private_ip_address], *args)
+            server(instance[:private_ip_address], properties)
           else
-            server(instance[:public_ip_address], *args)
+            server(instance[:public_ip_address], properties)
           end
 
         end
@@ -57,13 +57,14 @@ module Capistrano
     # Only selects instances that are in "running" state, ignoring starting up and terminating instances
     # Params:
     # +which+:: part or full name of the autoscaling group
-    # +*args+:: arguments passed to Capistrano::server method
-    def self.addInstances(which, *args)
+    # +properties+:: arguments passed to Capistrano::server method
+    def add_instances(which, properties = {})
+      Asgroup.setup
       @instance ||= new
-      @instance.addInstances(which, *args)
+      @instance.addInstances(which, properties)
     end
 
-    def addInstances(which, *args)
+    def addInstances(which, properties)
       if nil == fetch(:asgroup_use_private_ips)
         set :asgroup_use_private_ips, false
       end
@@ -90,9 +91,9 @@ module Capistrano
         reservation[:instances].delete_if{ |a| not @asGroupInstanceIds.include?(a[:instance_id]) or a[:state][:name] != "running" }.each do |instance|
           puts "Found ASG #{which} Instance ID: #{instance[:instance_id]} in VPC: #{instance[:vpc_id]}"
           if true == fetch(:asgroup_use_private_ips)
-            server(instance[:private_ip_address], *args)
+            server(instance[:private_ip_address], properties)
           else
-            server(instance[:public_ip_address], *args)
+            server(instance[:public_ip_address], properties)
           end
 
         end
