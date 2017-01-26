@@ -23,18 +23,11 @@ module Capistrano
         credentials: credentials
       )
     end
+  end
 
   module DSL
     def add_by_tag(tagName, tagValue, properties = {})
       Asgroup.setup
-      @instance ||= new
-      @instance.addInstancesByTag(tagName, tagValue, properties)
-    end
-
-    def addInstancesByTag(tagName, tagValue, properties)
-      if nil == fetch(:asgroup_use_private_ips)
-        set :asgroup_use_private_ips, false
-      end
 
       @ec2DescInst = @ec2_api.describe_instances(filters:[
         name: "tag:#{tagName}", values: [tagValue]
@@ -53,21 +46,9 @@ module Capistrano
         end
       end
     end
-    # Adds Capistrano servers based on the given (part of) name of an AWS autoscaling group
-    # Only selects instances that are in "running" state, ignoring starting up and terminating instances
-    # Params:
-    # +which+:: part or full name of the autoscaling group
-    # +properties+:: arguments passed to Capistrano::server method
+
     def add_instances(which, properties = {})
       Asgroup.setup
-      @instance ||= new
-      @instance.addInstances(which, properties)
-    end
-
-    def addInstances(which, properties)
-      if nil == fetch(:asgroup_use_private_ips)
-        set :asgroup_use_private_ips, false
-      end
 
       # Get descriptions of all the Auto Scaling groups
       @autoScaleDesc = @as_api.describe_auto_scaling_groups
@@ -99,6 +80,5 @@ module Capistrano
         end
       end
     end
-
   end
 end
