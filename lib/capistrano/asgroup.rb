@@ -34,7 +34,7 @@ module Capistrano
   end
 
   module DSL
-    def add_by_tag(tagName, tagValue, properties = {})
+    def add_as_by_tag(tagName, tagValue, properties = {})
       ec2DescInst = Asgroup.ec2_api.describe_instances(filters:[
         name: "tag:#{tagName}", values: [tagValue]
       ])
@@ -53,7 +53,7 @@ module Capistrano
       end
     end
 
-    def add_instances(which, properties = {})
+    def add_as_instances(which, properties = {})
       # Get descriptions of all the Auto Scaling groups
       autoScaleDesc = Asgroup.as_api.describe_auto_scaling_groups
       asGroupInstanceIds = Array.new()

@@ -23,12 +23,14 @@ groups (looking for the name in the Cloud Formation format).
 
 ### Set the Amazon AWS Credentials
 
-In order for the plugin to list out the hostnames of your AWS Auto Scaling instances, it
-will need access to the Amazon AWS API.  It is recommended to use IAM to create credentials
-with limited capabilities for this type of purpose. Specify the following in your
-Capistrano configuration:
+In order for the plugin to list out the hostnames of your AWS Auto
+Scaling instances, it will need access to the Amazon AWS API.  It is
+recommended to use IAM to create credentials with limited capabilities
+for this type of purpose. Specify the following in your Capistrano
+configuration:
 
-You can use aws-sdk credentials described in [AWS docs](http://docs.aws.amazon.com/sdkforruby/api/index.html)
+You can use aws-sdk credentials described in [AWS
+docs](http://docs.aws.amazon.com/sdkforruby/api/index.html)
 
 ```ruby
 set :aws_access_key_id, ENV['AWS_ACCESS_KEY_ID']
@@ -85,8 +87,7 @@ than their public addresses.
 Then replace your `role` or similar statement with a statement like:
 
 ```ruby
-Capistrano::Asgroup.addInstances("<my-autoscale-group-name>"[, roles:
-<role>])
+add_as_instances "<my-autoscale-group-name>"[, roles: <role>]
 ```
 
 So instead of:
@@ -102,7 +103,7 @@ You would do:
 
 ```ruby
 task :production do
-  Capistrano::Asgroup.addInstances("my-asg-name", roles: 'web')
+  add_as_instances "my-asg-name", roles: 'web'
   logger.info 'Deploying to the PRODUCTION environment!'
 end
 ```
@@ -112,8 +113,12 @@ end
 You can also add instances via the ASG's tagging system.
 
 ```ruby
-Capistrano::Asgroup.addInstancesByTag("tagname", "tagvalue", {other: params})
+add_as_by_tag "Name", "#{fetch :stage}-website-webserver", roles: 'web',
+user: 'ubuntu'
 ```
+
+This would add any instances tagged with the stage plus
+`-website-webserver`, for example `production-website-webserver`.
 
 ## License
 
