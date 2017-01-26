@@ -1,10 +1,11 @@
+require 'capistrano/asgroup/version'
 require 'rubygems'
 require 'aws-sdk'
 require 'capistrano'
 
 module Capistrano
-  class Asgroup
-    def initialize
+  module Asgroup
+    def self.setup
       if nil == fetch(:asgroup_use_private_ips)
         set :asgroup_use_private_ips, false
       end
@@ -24,7 +25,7 @@ module Capistrano
       )
     end
 
-    # Adds capistrano servers based on instnce tag k/v
+    # Adds Capistrano servers based on instance tag k/v
     def self.addInstancesByTag(tagName, tagValue, *args)
       @instance ||= new
       @instance.addInstancesByTag(tagName, tagValue, *args)
@@ -52,11 +53,11 @@ module Capistrano
         end
       end
     end
-    # Adds capistrano servers based on the given (part of) name of an AWS autoscaling group
-    # Only selecs instances that re in "running" state, ignoring starting up and terminating instances
+    # Adds Capistrano servers based on the given (part of) name of an AWS autoscaling group
+    # Only selects instances that are in "running" state, ignoring starting up and terminating instances
     # Params:
     # +which+:: part or full name of the autoscaling group
-    # +*args+:: argments passed to Capistrano::server method
+    # +*args+:: arguments passed to Capistrano::server method
     def self.addInstances(which, *args)
       @instance ||= new
       @instance.addInstances(which, *args)
